@@ -1,8 +1,7 @@
-#Global directive
+#Global directives
 {
   auto_https off 
 }
-
 {$DOMAIN_NAME} {
     # HTTPS options:
     # tls {$TLS_EMAIL}
@@ -20,17 +19,14 @@
     # Serves static files, should be the same as `STATIC_ROOT` setting:
     root * /var/www/django/
     file_server *
-
-
-
     # Serving dynamic requests:
     @dynamic {
-        not path /static/* /media/* 
+        not path /static/* /media/* /mio*
     }
-    reverse_proxy @dynamic django:8000 {
-        transport http 
-    }
+    reverse_proxy @dynamic django:8000 
 
+    reverse_proxy /mio* minio:{$MINIO_PORT} 
+    
     log {
       # format console 
       output stdout
@@ -50,20 +46,9 @@
          }
       }   
     }
-
     # Allows to use `.gz` files when available:
     # encode gzip
-
-    # Logs:
-
-# handle_errors {
-#     log
-#     respond "<h1>Internal Server Error</h1>" 500
-# }
 }
-
-
-
 {$DOMAIN_NAME}:700 {
 
   reverse_proxy minio:{$MINIO_PORT} 
@@ -87,5 +72,4 @@
         }
     }   
   }
-    
 }
