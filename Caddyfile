@@ -29,16 +29,26 @@
     # Serves static files, should be the same as `STATIC_ROOT` setting:
     root * /var/www/django/
     file_server *
+
     # Serving dynamic requests:
     @dynamic {
-        not path /static/* /media/* /mio/*
+        not path /static/* /media/* /{$AWS_STORAGE_BUCKET_NAME}* /{$AWS_STORAGE_PRIVATE_BUCKET_NAME}*
     }
     reverse_proxy @dynamic django:8000 
 
-
-    handle_path /mio*  {
-        reverse_proxy * minio:{$MINIO_PORT} 
+    @min_bucket {
+      path /{$AWS_STORAGE_BUCKET_NAME}* /{$AWS_STORAGE_PRIVATE_BUCKET_NAME}*
     }
+    reverse_proxy @min_bucket minio:{$MINIO_PORT}
+
+
+    # handle_path /mio*  {
+    #     reverse_proxy * minio:{$MINIO_PORT} {
+    #     # reverse_proxy * minio:9001 {
+    #         # header -Authorization
+    #         # header_up -Authorization 
+    #     }
+    # }
 
     log {
         output stdout
@@ -63,30 +73,30 @@
     #      }
     #   }   
     # }
-    Allows to use `.gz` files when available:
+    #Allows to use `.gz` files when available:
     encode gzip
 }
-{$DOMAIN_NAME}:700 {
+# {$DOMAIN_NAME}:700 {
 
-  reverse_proxy minio:{$MINIO_PORT} 
+#   reverse_proxy minio:{$MINIO_PORT} 
 
-  log {
-    # format console 
-    output stdout
-    format filter {
-      wrap console
-      fields {
-        request>remote_ip delete 
-        request>remote_port delete 
-        request>client_ip delete 
-        request>headers delete ##maybe add that in future 
-        bytes_read delete 
-        duration delete 
-        size delete 
-        status delete 
-        headers delete          
-        resp_headers delete           
-        }
-    }   
-  }
-}
+#   log {
+#     # format console 
+#     output stdout
+#     format filter {
+#       wrap console
+#       fields {
+#         request>remote_ip delete 
+#         request>remote_port delete 
+#         request>client_ip delete 
+#         request>headers delete ##maybe add that in future 
+#         bytes_read delete 
+#         duration delete 
+#         size delete 
+#         status delete 
+#         headers delete          
+#         resp_headers delete           
+#         }
+#     }   
+#   }
+# }
