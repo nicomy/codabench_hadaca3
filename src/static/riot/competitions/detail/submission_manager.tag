@@ -474,6 +474,11 @@
             let check_boxes = $(self.refs.submission_table).find('input')
             // Set checkboxes to be equal to Select_All checkbox
             check_boxes.prop('checked', check_boxes.first().is(':checked'))
+
+            
+            let inputs = $(self.refs.submission_table).find('input')
+            let checked_boxes = inputs.not(':first').filter('input:checked')
+            self.checked_submissions = checked_boxes.serializeArray().map((x) => { return x.name })
         }
 
 
@@ -523,17 +528,34 @@
 
         // imported from submission_modal ! 
         // self.update_submission_details = () => {
-        //     CODALAB.api.get_submission_details(self.submission.id)
-        //         .done(function (data) {
-        //             self.leaderboards = data.leaderboards
-        //             self.prediction_result = data.prediction_result
-        //             self.scoring_result = data.scoring_result
-        //         }
-        //     }
+        self.bulk_download = function () {
+            console.log("in the beginning")
+            
+            list_data = []
+            self.checked_submissions.forEach( (submision_id) => {
+                CODALAB.api.get_submission_details(submision_id)
+                .done(function (data) {
+                    console.log(data)
+                    console.log(data.owner)
+                    list_data.push(data.data_file)
+                    // list_data.append(data.data_file)
+                })
+            })
+            console.log(list_data)
+            // CODALAB.api.get_selected_submission_details(self.checked_submissions)
+            // .done(function (data_list) {
+            //         // self.leaderboards = data.leaderboards
+            //         // self.prediction_result = data.prediction_result
+            //         // self.scoring_result = data.scoring_result
+            //         // self.data_file = data.data_file
+            //         console.log("In bulk download")
+            //         console.log(data_lis)
+            //     })
+            }
         
 
         self.submission_handling= function( ){
-            // console.log(submission_operation)
+            // console.log(self.checked_submissions)
             if(self.checked_submissions.length === 0){
                 console.log("no submission is selected");
             }else{
@@ -545,6 +567,7 @@
                         break;
                     case "download":
                         console.log("download")
+                        self.bulk_download()
                         break;
                     case "rerun":
                         console.log("rerun")

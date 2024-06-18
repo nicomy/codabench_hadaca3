@@ -309,6 +309,26 @@ class SubmissionViewSet(ModelViewSet):
         for submission in qs:
             submission.re_run()
         return Response({})
+    
+
+    # New methods impleted !! 
+    @action(detail=True, methods=('GET',))
+    def get_selected_submission_details(self,request):
+            # self.checked_submissions
+        qs = self.get_queryset()
+        data_list = []
+        for submission in qs:
+            # data_list.append(submission.data.data_file)
+            data_list.append(submission.data.data_file)
+        return Response(data_list)
+            # // CODALAB.api.get_submission_details(self.submission.id)
+            #     .done(function (data) {
+            #         // self.leaderboards = data.leaderboards
+            #         // self.prediction_result = data.prediction_result
+            #         // self.scoring_result = data.scoring_result
+            #         self.data_file = data.data_file
+            #     }
+
 
     @action(detail=True, methods=('GET',))
     def get_details(self, request, pk):
