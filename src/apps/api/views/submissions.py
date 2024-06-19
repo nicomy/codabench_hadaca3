@@ -19,12 +19,14 @@ from django.core.files.base import ContentFile
 from profiles.models import Organization, Membership
 from tasks.models import Task
 from api.serializers.submissions import SubmissionCreationSerializer, SubmissionSerializer, SubmissionFilesSerializer
-from competitions.models import Submission, SubmissionDetails, Phase, CompetitionParticipant
+from competitions.models import Submission, SubmissionDetails, Phase, CompetitionParticipant,CompetitionCreationTaskStatus  ## aded CompetitionCreationTaskStatus for the bulk download 
 from leaderboards.strategies import put_on_leaderboard_by_submission_rule
 from leaderboards.models import SubmissionScore, Column, Leaderboard
 
 logger = logging.getLogger()
 
+#newly added 
+from django.http import StreamingHttpResponse
 
 class SubmissionViewSet(ModelViewSet):
     queryset = Submission.objects.all().order_by('-pk')
@@ -113,7 +115,8 @@ class SubmissionViewSet(ModelViewSet):
     def get_queryset(self):
         # On GETs lets optimize the query to reduce DB calls
         qs = super().get_queryset()
-        if self.request.method == 'GET':
+        if self.request.method == 'GET' :
+
             if not self.request.user.is_authenticated:
                 return Submission.objects.none()
 
@@ -138,8 +141,11 @@ class SubmissionViewSet(ModelViewSet):
                 'task',
             )
         elif self.action in ['delete_many', 're_run_many_submissions']:
+            logger.error("in action")
             try:
                 pks = list(self.request.data)
+                logger.error(pks)
+
             except TypeError as err:
                 raise ValidationError(f'Error {err}')
             qs = qs.filter(pk__in=pks)
@@ -311,16 +317,57 @@ class SubmissionViewSet(ModelViewSet):
         return Response({})
     
 
-    # New methods impleted !! 
-    @action(detail=True, methods=('GET',))
-    def get_selected_submission_details(self,request):
-            # self.checked_submissions
+
+
+
+
+
+    # # New methods impleted !! 
+    @action(detail=False, methods=('GET',))
+    def download_many(self,request):
+        pks = request.query_params.get('pks')
+        if pks:
+            pks = json.loads(pks) 
+        # logger.info(pks)
+
         qs = self.get_queryset()
-        data_list = []
+        qs = qs.filter(pk__in=pks)
         for submission in qs:
-            # data_list.append(submission.data.data_file)
-            data_list.append(submission.data.data_file)
-        return Response(data_list)
+            logger.info(submission.id)
+
+        # # Doing a local import here to avoid circular imports
+        from competitions.tasks import stream_batch_download
+
+    # def download_all_submissions(request):
+
+        # response =  (
+        #     # zip_generator(submissions),
+        #     stream_batch_download.apply_async((status.pk,))
+        #     content_type='application/zip'
+        # )
+        # response['Content-Disposition'] = 'attachment; filename="submissions.zip"'
+
+        # return response
+
+
+        stream_batch_download.apply_async((status.pk,))
+
+
+
+        # status = CompetitionCreationTaskStatus.objects.create(
+        #     created_by=request.user,
+        #     dataset=dataset,
+        #     status=CompetitionCreationTaskStatus.STARTING,
+        # )
+        
+        return Response({})   #"status_id": status.pk})
+    
+
+        # data_list = []
+    #     for submission in qs:
+    #         # data_list.append(submission.data.data_file)
+    #         data_list.append(submission.data.data_file)
+    #     return Response(data_list)
             # // CODALAB.api.get_submission_details(self.submission.id)
             #     .done(function (data) {
             #         // self.leaderboards = data.leaderboards

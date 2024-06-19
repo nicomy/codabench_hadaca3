@@ -124,6 +124,10 @@ CODALAB.api = {
     get_submission_detail_result: function (id) {
         return CODALAB.api.request('GET', `${URLS.API}submissions/${id}/get_detail_result/`)
     },
+    download_many_submissions: function (pks) {
+        const params = new URLSearchParams({ pks: JSON.stringify(pks) });
+        return CODALAB.api.request('GET', `${URLS.API}submissions/download_many/?${params}`)
+    },
 
     /*---------------------------------------------------------------------
          Leaderboards

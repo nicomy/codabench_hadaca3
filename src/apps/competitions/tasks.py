@@ -32,6 +32,11 @@ from datasets.models import Data
 from utils.data import make_url_sassy
 from utils.email import codalab_send_markdown_email
 
+
+# Newly added. 
+from urllib.request import urlretrieve
+
+
 logger = logging.getLogger()
 
 COMPETITION_FIELDS = [
@@ -259,6 +264,48 @@ def send_child_id(submission, child_id):
         "kind": "child_update",
         "child_id": child_id
     })
+
+
+
+
+
+
+def zip_generator(submissions):
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for submission_id in submissions:
+            submission = qs.get(pk=submission_pk)
+            if not os.path.exists(self.bundle_dir):
+                os.mkdir(self.bundle_dir)
+            url  = make_url_sassy(
+                path=submission.data.data_file.name #if not is_scoring else submission.task.scoring_program.data_file.name
+            )
+            file_data = NamedTemporaryFile(dir=self.bundle_dir, delete=False).name
+            urlretrieve(url, file_data)
+
+            if file_data:
+                zip_info = zipfile.ZipInfo(file_path)
+                zip_file.writestr(zip_info, file_data)
+            else:
+                print(f"File {file_path} not found")
+            
+            buffer.seek(0)
+            yield buffer.read()
+            buffer.seek(0)
+            buffer.truncate(0)
+
+    buffer.seek(0)
+    yield buffer.read()
+
+
+
+
+@app.task(queue='site-worker', soft_time_limit=60*60)
+def stream_batch_download(submission_pk):
+    logger.error("In stream_batch_download")
+    return True
+
+
 
 
 @app.task(queue='site-worker', soft_time_limit=60)

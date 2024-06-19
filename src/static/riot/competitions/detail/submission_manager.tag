@@ -14,16 +14,7 @@
         <a class="ui button" href="{csv_link}">
             <i class="icon download"></i>Download as CSV
         </a>
-        <!-- <button type="button" class="ui button right floated" disabled="{checked_submissions.length === 0}"
-            onclick="{delete_selected_submissions.bind(this)}">
-            <i class="icon trash alternate"></i>
-            Delete Submissions
-        </button>
-        <button type="button" class="ui button right floated" disabled="{checked_submissions.length === 0}"
-            onclick="{rerun_selected_submissions.bind(this)}">
-            <i class="icon redo"></i>
-            Rerun Submissions
-        </button> -->
+
         <select class=" ui dropdown floated right " ref="submission_handling_operation" >
             <option value="delete"> Delete selected submissions</option>
             <option value="download">Download selected submissions</option>
@@ -526,32 +517,27 @@
             CODALAB.events.trigger('submission_clicked')
         }
 
-        // imported from submission_modal ! 
-        // self.update_submission_details = () => {
+
         self.bulk_download = function () {
             console.log("in the beginning")
-            
-            list_data = []
-            self.checked_submissions.forEach( (submision_id) => {
-                CODALAB.api.get_submission_details(submision_id)
-                .done(function (data) {
-                    console.log(data)
-                    console.log(data.owner)
-                    list_data.push(data.data_file)
-                    // list_data.append(data.data_file)
-                })
+            console.log(self.checked_submissions)
+            CODALAB.api.download_many_submissions(self.checked_submissions)
+            .done(function (response) {
             })
-            console.log(list_data)
-            // CODALAB.api.get_selected_submission_details(self.checked_submissions)
-            // .done(function (data_list) {
-            //         // self.leaderboards = data.leaderboards
-            //         // self.prediction_result = data.prediction_result
-            //         // self.scoring_result = data.scoring_result
-            //         // self.data_file = data.data_file
-            //         console.log("In bulk download")
-            //         console.log(data_lis)
+        }
+            // list_data = []
+            // self.checked_submissions.forEach( (submision_id) => {
+            //     CODALAB.api.get_submission_details(submision_id)
+            //     .done(function (data) {
+            //         console.log(data)
+            //         console.log(data.owner)
+            //         list_data.push(data.data_file)
+            //         // list_data.append(data.data_file)
             //     })
-            }
+            // })
+            // console.log(list_data)
+
+            // }
         
 
         self.submission_handling= function( ){
