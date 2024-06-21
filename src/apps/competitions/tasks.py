@@ -34,8 +34,9 @@ from utils.email import codalab_send_markdown_email
 
 
 # Newly added. 
-from urllib.request import urlretrieve
-
+from urllib.request import urlopen
+from contextlib import closing
+from urllib.error import ContentTooShortError
 
 logger = logging.getLogger()
 
@@ -267,43 +268,77 @@ def send_child_id(submission, child_id):
 
 
 
+def retrieve_data(url,data=None):
+    with closing(urlopen(url, data)) as fp:
+        headers = fp.info()
+
+        bs = 1024*8
+        size = -1
+        read = 0
+        blocknum = 0
+        if "content-length" in headers:
+            size = int(headers["Content-Length"])
+
+        while True:
+            block = fp.read(bs)
+            if not block:
+                break
+            read += len(block)
+            yield(block)
+    
+    if size >= 0 and read < size:
+        raise ContentTooShortError(
+            "retrieval incomplete: got only %i out of %i bytes"
+            % (read, size))
 
 
+def zip_generator(submissions_pks):
+    # buffer = BytesIO()
 
-def zip_generator(submissions):
-    buffer = BytesIO()
-    with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        for submission_id in submissions:
-            submission = qs.get(pk=submission_pk)
-            if not os.path.exists(self.bundle_dir):
-                os.mkdir(self.bundle_dir)
+    bulk_submission_dir = "/bulk_submissions"
+    if not os.path.exists(bulk_submission_dir):
+        os.mkdir(bulk_submission_dir)
+    filename = "/bulk_submissions/test.zip"
+    with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for submission_id in submissions_pks:
+            submission = Submission.objects.get(id=submission_id)
+            # submission = qs.get(pk=submission_id)
+            logger.info(submission.data.data_file)
+            # bulk_submission_dir = os.path.join(tempfile.mkdtemp(dir="/"), "bulk_submissions")
+
+
+            short_name = submission.data.data_file.name.split('/')[-1]
+            # new_file_name = f"submission_{submission.name}_{submission.id}_date_{submission.started_when}_part_{submission.participant}.zip"
             url  = make_url_sassy(
                 path=submission.data.data_file.name #if not is_scoring else submission.task.scoring_program.data_file.name
             )
-            file_data = NamedTemporaryFile(dir=self.bundle_dir, delete=False).name
-            urlretrieve(url, file_data)
+            for block in retrieve_data(url):
+            # Write each block of data to the zip file
+                zip_file.writestr(short_name,block)
+            # logger.info(url)
+            # file_data = NamedTemporaryFile(dir=bulk_submission_dir, delete=False,suffix='.zip').name
+            # urlretrieve(url, file_data)
 
-            if file_data:
-                zip_info = zipfile.ZipInfo(file_path)
-                zip_file.writestr(zip_info, file_data)
-            else:
-                print(f"File {file_path} not found")
-            
-            buffer.seek(0)
-            yield buffer.read()
-            buffer.seek(0)
-            buffer.truncate(0)
+            # # logger.info(file_data)
+            # if file_data:
+            #     
+            #     logger.info(new_file_name)
+            #     zip_info = zipfile.ZipInfo(new_file_name)
+            #     zip_file.writestr(zip_info, file_data)
+            # else:
+            #     logger.error(f"File {file_data} not found")
 
-    buffer.seek(0)
-    yield buffer.read()
+    return filename
 
 
 
 
+# the queue 
 @app.task(queue='site-worker', soft_time_limit=60*60)
-def stream_batch_download(submission_pk):
-    logger.error("In stream_batch_download")
-    return True
+def stream_batch_download(submission_pks):
+    # logger.info("In stream_batch_download")
+    # logger.info(submission_pks)
+    return zip_generator(submission_pks)
 
 
 

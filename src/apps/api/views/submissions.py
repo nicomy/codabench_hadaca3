@@ -315,12 +315,6 @@ class SubmissionViewSet(ModelViewSet):
         for submission in qs:
             submission.re_run()
         return Response({})
-    
-
-
-
-
-
 
     # # New methods impleted !! 
     @action(detail=False, methods=('GET',))
@@ -328,54 +322,30 @@ class SubmissionViewSet(ModelViewSet):
         pks = request.query_params.get('pks')
         if pks:
             pks = json.loads(pks) 
-        # logger.info(pks)
 
-        qs = self.get_queryset()
-        qs = qs.filter(pk__in=pks)
-        for submission in qs:
-            logger.info(submission.id)
-
-        # # Doing a local import here to avoid circular imports
+        # Doing a local import here to avoid circular imports
         from competitions.tasks import stream_batch_download
+        from django.http import HttpResponse
+        from django.http import FileResponse
 
-    # def download_all_submissions(request):
-
-        # response =  (
-        #     # zip_generator(submissions),
-        #     stream_batch_download.apply_async((status.pk,))
-        #     content_type='application/zip'
-        # )
-        # response['Content-Disposition'] = 'attachment; filename="submissions.zip"'
-
+        # response = HttpResponse(stream_batch_download(pks), content_type='application/zip')
+        # response['Content-Disposition'] = 'attachment; filename=submissions.zip'
         # return response
 
-
-        stream_batch_download.apply_async((status.pk,))
-
-
-
-        # status = CompetitionCreationTaskStatus.objects.create(
-        #     created_by=request.user,
-        #     dataset=dataset,
-        #     status=CompetitionCreationTaskStatus.STARTING,
-        # )
-        
-        return Response({})   #"status_id": status.pk})
+        file_server = stream_batch_download(pks)
+        file_to_download = open(str(file_server), 'rb')
+        response = FileResponse(file_to_download, content_type='application/force-download')
+        response['Content-Disposition'] = 'inline; filename="a_name_to_file_client_hint"'
+        return response
     
+        # response =  StreamingHttpResponse(
+        #     stream_batch_download(pks),
+        #     content_type='application/zip'
+        # ) 
+        
+        # response['Content-Disposition'] = 'attachment; filename="bulk_submissions.zip"'
 
-        # data_list = []
-    #     for submission in qs:
-    #         # data_list.append(submission.data.data_file)
-    #         data_list.append(submission.data.data_file)
-    #     return Response(data_list)
-            # // CODALAB.api.get_submission_details(self.submission.id)
-            #     .done(function (data) {
-            #         // self.leaderboards = data.leaderboards
-            #         // self.prediction_result = data.prediction_result
-            #         // self.scoring_result = data.scoring_result
-            #         self.data_file = data.data_file
-            #     }
-
+        # return response   
 
     @action(detail=True, methods=('GET',))
     def get_details(self, request, pk):
