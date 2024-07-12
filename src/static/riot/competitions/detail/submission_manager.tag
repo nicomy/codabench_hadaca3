@@ -517,31 +517,6 @@
         }
 
 
-        // self.bulk_download = function () {
-        //     CODALAB.api.download_many_submissions(self.checked_submissions)
-        //         .then(response => {
-        //             if (response.ok) {
-        //                 return response.blob();
-        //             } else {
-        //                 throw new Error('Failed to download submissions');
-        //             }
-        //         })
-        //         .then(blob => {
-        //             const url = window.URL.createObjectURL(blob);
-        //             const a = document.createElement('a');
-        //             a.href = url;
-        //             a.download = 'submissions.zip';
-        //             document.body.appendChild(a);
-        //             a.click();
-        //             setTimeout(() => {
-        //                 window.URL.revokeObjectURL(url);
-        //                 document.body.removeChild(a);
-        //             }, 0);
-        //         })
-        //         .catch(error => {
-        //             console.error('Error:', error);
-        //         });
-        // }
         self.bulk_download = function () {
             CODALAB.api.download_many_submissions(self.checked_submissions)
             .catch(function (error) {
@@ -549,20 +524,6 @@
             });
         }
 
-        // }
-        // list_data = []
-        // self.checked_submissions.forEach( (submision_id) => {
-        //     CODALAB.api.get_submission_details(submision_id)
-        //     .done(function (data) {
-        //         console.log(data)
-        //         console.log(data.owner)
-        //         list_data.push(data.data_file)
-        //         // list_data.append(data.data_file)
-        //     })
-        // })
-        // console.log(list_data)
-
-        // }
 
 
         self.submission_handling = function () {

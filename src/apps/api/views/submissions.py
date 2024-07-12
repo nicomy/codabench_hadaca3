@@ -325,6 +325,7 @@ class SubmissionViewSet(ModelViewSet):
 
         # Doing a local import here to avoid circular imports
         from competitions.tasks import stream_batch_download
+
         # Call the task and get the result (stream)
         # in_memory_zip = stream_batch_download.apply_async((pks,)).get()
         in_memory_zip = stream_batch_download(pks)
@@ -334,37 +335,6 @@ class SubmissionViewSet(ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="bulk_submissions.zip"'
 
         return response
-    
-    # # New methods impleted !! 
-    # @action(detail=False, methods=('GET',))
-    # def download_many(self,request):
-    #     pks = request.query_params.get('pks')
-    #     if pks:
-    #         pks = json.loads(pks) 
-
-    #     # Doing a local import here to avoid circular imports
-    #     from competitions.tasks import stream_batch_download
-    #     from django.http import HttpResponse
-    #     from django.http import FileResponse
-
-    #     # response = HttpResponse(stream_batch_download(pks), content_type='application/zip')
-    #     # response['Content-Disposition'] = 'attachment; filename=submissions.zip'
-    #     # return response
-
-    #     file_server = stream_batch_download(pks)
-    #     file_to_download = open(str(file_server), 'rb')
-    #     response = FileResponse(file_to_download, content_type='application/force-download')
-    #     response['Content-Disposition'] = 'inline; filename="a_name_to_file_client_hint"'
-    #     return response
-    
-        # response =  StreamingHttpResponse(
-        #     stream_batch_download(pks),
-        #     content_type='application/zip'
-        # ) 
-        
-        # response['Content-Disposition'] = 'attachment; filename="bulk_submissions.zip"'
-
-        # return response   
 
     @action(detail=True, methods=('GET',))
     def get_details(self, request, pk):
