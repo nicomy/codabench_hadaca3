@@ -124,53 +124,76 @@ CODALAB.api = {
     get_submission_detail_result: function (id) {
         return CODALAB.api.request('GET', `${URLS.API}submissions/${id}/get_detail_result/`)
     },
-    // download_many_submissions: function (pks) {
+
+    // download_many_submissions : function(pks) {
     //     const params = new URLSearchParams({ pks: JSON.stringify(pks) });
-    //     return CODALAB.api.request('GET', `${URLS.API}submissions/download_many/?${params}`)
-    // },   
-    download_many_submissions : function(pks) {
+    //     const url = `${URLS.API}submissions/download_many/?${params}`
+    //     return $.ajax({
+    //         url: url,
+    //         type: 'GET',
+    //         xhrFields: {
+    //             responseType: 'blob'  // Set response type to 'blob' for binary data
+    //         },
+    //         success: function(data, status, xhr) {
+    //             // console.log('Request succeeded:', status);
+    //             const blob = new Blob([data], { type: 'application/zip' });
+    //             const link = document.createElement('a');
+    //             link.href = window.URL.createObjectURL(blob);
+    //             link.download = 'bulk_submissions.zip';
+    //             document.body.appendChild(link);
+    //             link.click();
+    //             document.body.removeChild(link);
+    //         },
+    //         error: function(xhr, status, error) {
+    //             console.error('Error downloading submissions:', error);
+    //         }
+    //     });
+    //     // return   $.ajax({
+    //     //     url: url,
+    //     //     type: 'GET',
+    //     //     xhrFields: {
+    //     //         responseType: 'blob'  // Set response type to 'blob' for binary data
+    //     //     },
+    //     //     success: function(data, status, xhr) {
+    //     //         // Create a link element, use it to create a URL, and click it to download the file
+    //     //         const blob = new Blob([data], { type: 'application/zip' });
+    //     //         const link = document.createElement('a');
+    //     //         link.href = window.URL.createObjectURL(blob);
+    //     //         link.download = 'bulk_submissions.zip';
+    //     //         document.body.appendChild(link);
+    //     //         link.click();
+    //     //         document.body.removeChild(link);
+    //     //     },
+    //     //     error: function(xhr, status, error) {
+    //     //         console.error('Error downloading submissions:', error);
+    //     //     }
+    //     // });
+    // },
+
+    download_many_submissions: function (pks) {
+        console.log('Request bulk');
         const params = new URLSearchParams({ pks: JSON.stringify(pks) });
-        const url = `${URLS.API}submissions/download_many/?${params}`
-        return $.ajax({
-            url: url,
-            type: 'GET',
-            xhrFields: {
-                responseType: 'blob'  // Set response type to 'blob' for binary data
-            },
-            success: function(data, status, xhr) {
-                // console.log('Request succeeded:', status);
-                const blob = new Blob([data], { type: 'application/zip' });
-                const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = 'bulk_submissions.zip';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error downloading submissions:', error);
+        const url = `${URLS.API}submissions/download_many/?${params}`;
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.blob();
+        }).then(blob => {
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'bulk_submissions.zip';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }).catch(error => {
+            console.error('Error downloading submissions:', error);
         });
-        // return   $.ajax({
-        //     url: url,
-        //     type: 'GET',
-        //     xhrFields: {
-        //         responseType: 'blob'  // Set response type to 'blob' for binary data
-        //     },
-        //     success: function(data, status, xhr) {
-        //         // Create a link element, use it to create a URL, and click it to download the file
-        //         const blob = new Blob([data], { type: 'application/zip' });
-        //         const link = document.createElement('a');
-        //         link.href = window.URL.createObjectURL(blob);
-        //         link.download = 'bulk_submissions.zip';
-        //         document.body.appendChild(link);
-        //         link.click();
-        //         document.body.removeChild(link);
-        //     },
-        //     error: function(xhr, status, error) {
-        //         console.error('Error downloading submissions:', error);
-        //     }
-        // });
     },
 
     /*---------------------------------------------------------------------

@@ -544,9 +544,9 @@
         // }
         self.bulk_download = function () {
             CODALAB.api.download_many_submissions(self.checked_submissions)
-            .done(function (response) {
-                console.log(response)
-            })
+            .catch(function (error) {
+                console.error('Error:', error);
+            });
         }
 
         // }
@@ -573,15 +573,15 @@
                 var submission_operation = self.refs.submission_handling_operation.value
                 switch (submission_operation) {
                     case "delete":
-                        console.log("delete")
+                        // console.log("delete")
                         self.delete_selected_submissions()
                         break;
                     case "download":
-                        console.log("download")
+                        // console.log("download")
                         self.bulk_download()
                         break;
                     case "rerun":
-                        console.log("rerun")
+                        // console.log("rerun")
                         self.rerun_selected_submissions()
                         break
                     default:

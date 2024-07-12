@@ -292,45 +292,62 @@ def retrieve_data(url,data=None):
             % (read, size))
 
 
-def zip_generator(submissions_pks):
-    # buffer = BytesIO()
+# def zip_generator(submissions_pks):
+#     # buffer = BytesIO()
 
-    bulk_submission_dir = "/bulk_submissions"
-    if not os.path.exists(bulk_submission_dir):
-        os.mkdir(bulk_submission_dir)
-    filename = "/bulk_submissions/test.zip"
-    with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        for submission_id in submissions_pks:
+#     bulk_submission_dir = "/bulk_submissions"
+#     if not os.path.exists(bulk_submission_dir):
+#         os.mkdir(bulk_submission_dir)
+#     filename = "/bulk_submissions/test.zip"
+#     with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+#         for submission_id in submissions_pks:
+#             submission = Submission.objects.get(id=submission_id)
+#             # submission = qs.get(pk=submission_id)
+#             logger.info(submission.data.data_file)
+#             # bulk_submission_dir = os.path.join(tempfile.mkdtemp(dir="/"), "bulk_submissions")
+
+
+#             short_name = submission.data.data_file.name.split('/')[-1]
+#             # new_file_name = f"submission_{submission.name}_{submission.id}_date_{submission.started_when}_part_{submission.participant}.zip"
+#             url  = make_url_sassy(
+#                 path=submission.data.data_file.name #if not is_scoring else submission.task.scoring_program.data_file.name
+#             )
+#             for block in retrieve_data(url):
+#             # Write each block of data to the zip file
+#                 zip_file.writestr(short_name,block)
+#             # logger.info(url)
+#             # file_data = NamedTemporaryFile(dir=bulk_submission_dir, delete=False,suffix='.zip').name
+#             # urlretrieve(url, file_data)
+
+#             # # logger.info(file_data)
+#             # if file_data:
+#             #     
+#             #     logger.info(new_file_name)
+#             #     zip_info = zipfile.ZipInfo(new_file_name)
+#             #     zip_file.writestr(zip_info, file_data)
+#             # else:
+#             #     logger.error(f"File {file_data} not found")
+
+#     return filename
+
+
+
+def zip_generator(submission_pks):
+    in_memory_zip = BytesIO()
+    # logger.info("IN zip generator")
+    with zipfile.ZipFile(in_memory_zip, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for submission_id in submission_pks:
             submission = Submission.objects.get(id=submission_id)
-            # submission = qs.get(pk=submission_id)
-            logger.info(submission.data.data_file)
-            # bulk_submission_dir = os.path.join(tempfile.mkdtemp(dir="/"), "bulk_submissions")
-
+            # logger.info(submission.data.data_file)
 
             short_name = submission.data.data_file.name.split('/')[-1]
-            # new_file_name = f"submission_{submission.name}_{submission.id}_date_{submission.started_when}_part_{submission.participant}.zip"
-            url  = make_url_sassy(
-                path=submission.data.data_file.name #if not is_scoring else submission.task.scoring_program.data_file.name
-            )
+            url = make_url_sassy(path=submission.data.data_file.name)
             for block in retrieve_data(url):
-            # Write each block of data to the zip file
-                zip_file.writestr(short_name,block)
-            # logger.info(url)
-            # file_data = NamedTemporaryFile(dir=bulk_submission_dir, delete=False,suffix='.zip').name
-            # urlretrieve(url, file_data)
-
-            # # logger.info(file_data)
-            # if file_data:
-            #     
-            #     logger.info(new_file_name)
-            #     zip_info = zipfile.ZipInfo(new_file_name)
-            #     zip_file.writestr(zip_info, file_data)
-            # else:
-            #     logger.error(f"File {file_data} not found")
-
-    return filename
-
-
+                zip_file.writestr(short_name, block)
+    
+    in_memory_zip.seek(0)
+    
+    return in_memory_zip
 
 
 # the queue 
