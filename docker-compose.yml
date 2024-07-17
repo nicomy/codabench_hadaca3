@@ -201,7 +201,11 @@ services:
     depends_on:
       - rabbit
       - db
+      # - redis
     env_file: .env
+    # environment: 
+    #   - CELERY_BROKER_URL=pyamqp://guest:guest@rabbit:5672//
+    #   - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
       - .:/app
     restart: unless-stopped

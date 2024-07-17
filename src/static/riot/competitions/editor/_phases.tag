@@ -358,18 +358,42 @@
 
             // Have to initialize calendars here (instead of on mount) because they don't exist yet
             if (!self.has_initialized_calendars) {
+                // var datetime_options = {
+                //     type: 'datetime',
+                //     popupOptions: {
+                //         position: 'bottom left',
+                //         lastResort: 'bottom left',
+                //         hideOnScroll: false
+                //     },
+                //     onHide: function () {
+                //         // Have to do this because onchange isn't fired when date is picked
+                //         self.form_updated()
+                //     }
+                // }
                 var datetime_options = {
-                    type: 'date',
+                    type: 'datetime',
                     popupOptions: {
                         position: 'bottom left',
                         lastResort: 'bottom left',
                         hideOnScroll: false
                     },
+                    formatter: {
+                        datetime: function (date, settings) {
+                            if (!date) return '';
+                            var day = ('0' + date.getDate()).slice(-2);
+                            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+                            var year = date.getFullYear();
+                            var hours = ('0' + date.getHours()).slice(-2);
+                            var minutes = ('0' + date.getMinutes()).slice(-2);
+                            return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+                        }
+                    },
+                    ampm: false, // 24-hour clock
+                    disableMinute: false, // Allow minute selection
                     onHide: function () {
-                        // Have to do this because onchange isn't fired when date is picked
                         self.form_updated()
                     }
-                }
+                };
 
                 var start_options = Object.assign({}, datetime_options, {endCalendar: self.refs.calendar_end})
                 var end_options = Object.assign({}, datetime_options, {startCalendar: self.refs.calendar_start})
