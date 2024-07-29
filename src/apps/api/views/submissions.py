@@ -313,7 +313,6 @@ class SubmissionViewSet(ModelViewSet):
         return Response({})
 
 
-    # # New methods impleted !! 
     @action(detail=False, methods=['get'])
     def download_many(self, request):
         pks = request.query_params.get('pks')
@@ -327,7 +326,6 @@ class SubmissionViewSet(ModelViewSet):
         # in_memory_zip = stream_batch_download.apply_async((pks,)).get()
         in_memory_zip = stream_batch_download(pks)
 
-        # Stream the response
         response = StreamingHttpResponse(in_memory_zip, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename="bulk_submissions.zip"'
 
