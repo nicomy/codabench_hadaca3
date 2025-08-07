@@ -312,7 +312,10 @@ class SubmissionViewSet(ModelViewSet):
             submission.re_run()
         return Response({})
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> aba6b6cff3d2cde6d427d418cc22dcc780f69560
     @action(detail=False, methods=['get'])
     def download_many(self, request):
         pks = request.query_params.get('pks')
@@ -322,13 +325,11 @@ class SubmissionViewSet(ModelViewSet):
         # Doing a local import here to avoid circular imports
         from competitions.tasks import stream_batch_download
 
-        # Call the task and get the result (stream)
         # in_memory_zip = stream_batch_download.apply_async((pks,)).get()
         in_memory_zip = stream_batch_download(pks)
 
         response = StreamingHttpResponse(in_memory_zip, content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename="bulk_submissions.zip"'
-
         return response
 
     @action(detail=True, methods=('GET',))
@@ -346,14 +347,14 @@ class SubmissionViewSet(ModelViewSet):
         submission = Submission.objects.get(pk=pk)
         # Check if competition show visualization is true
         if submission.phase.competition.enable_detailed_results:
-            # get submission's competition participants
-            participants = submission.phase.competition.participants.all()
-            participant_usernames = [participant.user.username for participant in participants]
+            # get submission's competition approved participants
+            approved_participants = submission.phase.competition.participants.filter(status=CompetitionParticipant.APPROVED)
+            participant_usernames = [participant.user.username for participant in approved_participants]
 
             # check if in this competition
             # user is collaborator
             # or
-            # user is participant
+            # user is approved participant
             # or
             # user is creator
             # or

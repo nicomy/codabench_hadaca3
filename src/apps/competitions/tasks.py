@@ -267,14 +267,13 @@ def send_child_id(submission, child_id):
     })
 
 
-def retrieve_data(url,data=None):
+def retrieve_data(url, data=None):
     with closing(urlopen(url, data)) as fp:
         headers = fp.info()
 
-        bs = 1024*8
+        bs = 1024 * 8
         size = -1
         read = 0
-        blocknum = 0
         if "content-length" in headers:
             size = int(headers["Content-Length"])
 
@@ -296,7 +295,10 @@ def zip_generator(submission_pks):
     with zipfile.ZipFile(in_memory_zip, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for submission_id in submission_pks:
             submission = Submission.objects.get(id=submission_id)
+<<<<<<< HEAD
 
+=======
+>>>>>>> aba6b6cff3d2cde6d427d418cc22dcc780f69560
             short_name = "ID_" + str(submission_id)+ '_' + submission.data.data_file.name.split('/')[-1]
             url = make_url_sassy(path=submission.data.data_file.name)
             for block in retrieve_data(url):
@@ -307,7 +309,7 @@ def zip_generator(submission_pks):
     return in_memory_zip
 
 
-@app.task(queue='site-worker', soft_time_limit=60*60)
+@app.task(queue='site-worker', soft_time_limit=60 * 60)
 def stream_batch_download(submission_pks):
     return zip_generator(submission_pks)
 
@@ -459,6 +461,8 @@ def unpack_competition(status_pk):
             # call again, to make sure phases get sent to chahub
             competition.save()
             logger.info("Competition saved!")
+            status.dataset.name += f" - {competition.title}"
+            status.dataset.save()
 
     except CompetitionUnpackingException as e:
         # We want to catch well handled exceptions and display them to the user
