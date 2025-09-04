@@ -1,31 +1,81 @@
+# FROM python:3.9
+
+# # PYTHONUNBUFFERED: Force stdin, stdout and stderr to be totally unbuffered. (equivalent to `python -u`)
+# # PYTHONHASHSEED: Enable hash randomization (equivalent to `python -R`)
+# # PYTHONDONTWRITEBYTECODE: Do not write byte files to disk, since we maintain it as readonly. (equivalent to `python -B`)
+# ENV PYTHONUNBUFFERED=1 PYTHONHASHSEED=random PYTHONDONTWRITEBYTECODE=1
+
+# # Get latest root certificates
+# RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+
+# # # Install the required packages
+# RUN curl -sSL https://install.python-poetry.org | python3 -
+# # Poetry location so future commands (below) work
+# ENV PATH $PATH:/root/.local/bin
+# # Want poetry to use system python of docker container
+# RUN poetry config virtualenvs.create false
+# RUN poetry config virtualenvs.in-project false
+
+# RUN poetry init --no-interaction
+
+# RUN poetry add redis=3.0.1
+# RUN poetry add flower=0.9.3
+# RUN poetry add celery="<5.0.0"
+
+# # Default port
+# EXPOSE 5555
+
+# # Run as a non-root user by default, run as user with least privileges.
+# USER nobody
+
+# ENTRYPOINT ["flower"]
+
+
 FROM python:3.9
 
-# PYTHONUNBUFFERED: Force stdin, stdout and stderr to be totally unbuffered. (equivalent to `python -u`)
-# PYTHONHASHSEED: Enable hash randomization (equivalent to `python -R`)
-# PYTHONDONTWRITEBYTECODE: Do not write byte files to disk, since we maintain it as readonly. (equivalent to `python -B`)
-ENV PYTHONUNBUFFERED=1 PYTHONHASHSEED=random PYTHONDONTWRITEBYTECODE=1
+# Environment settings for predictable Python behavior
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PYTHONDONTWRITEBYTECODE=1
 
-# Get latest root certificates
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+# Install root certificates
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+ && update-ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
-# # Install the required packages
+# Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
-# Poetry location so future commands (below) work
-ENV PATH $PATH:/root/.local/bin
-# Want poetry to use system python of docker container
-RUN poetry config virtualenvs.create false
-RUN poetry config virtualenvs.in-project false
+ENV PATH="$PATH:/root/.local/bin"
 
-RUN poetry init --no-interaction
+# Configure Poetry to use the system Python and no virtualenv
+RUN poetry config virtualenvs.create false \
+ && poetry config virtualenvs.in-project false
 
-RUN poetry add redis=3.0.1
-RUN poetry add flower=0.9.3
-RUN poetry add celery="<5.0.0"
+# Create minimal pyproject.toml with dependencies
+WORKDIR /app
+COPY <<EOF pyproject.toml
+[tool.poetry]
+name = "codabench"
+version = "0.1.0"
+description = ""
+authors = ["Codalab"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+redis = "3.0.1"
+flower = "0.9.3"
+celery = "<5.0.0"
+EOF
+
+# Install dependencies
+RUN poetry install --no-root --no-interaction --no-ansi
 
 # Default port
 EXPOSE 5555
 
-# Run as a non-root user by default, run as user with least privileges.
+# Run as a non-root user
 USER nobody
 
 ENTRYPOINT ["flower"]
