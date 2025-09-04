@@ -295,10 +295,6 @@ def zip_generator(submission_pks):
     with zipfile.ZipFile(in_memory_zip, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for submission_id in submission_pks:
             submission = Submission.objects.get(id=submission_id)
-<<<<<<< HEAD
-
-=======
->>>>>>> aba6b6cff3d2cde6d427d418cc22dcc780f69560
             short_name = "ID_" + str(submission_id)+ '_' + submission.data.data_file.name.split('/')[-1]
             url = make_url_sassy(path=submission.data.data_file.name)
             for block in retrieve_data(url):

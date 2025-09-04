@@ -312,10 +312,6 @@ class SubmissionViewSet(ModelViewSet):
             submission.re_run()
         return Response({})
 
-<<<<<<< HEAD
-
-=======
->>>>>>> aba6b6cff3d2cde6d427d418cc22dcc780f69560
     @action(detail=False, methods=['get'])
     def download_many(self, request):
         pks = request.query_params.get('pks')
