@@ -3,12 +3,7 @@ services:
   #   Web Services
   #----------------------------------------------------------------------------------------------------
   caddy:
-<<<<<<< HEAD
     image: caddy:2.11.1
-=======
-    # image: abiosoft/caddy:1.0.3
-    image: caddy:latest
->>>>>>> 96badfb60ed2d16f58b5cbf8fd53ad63b37081bd
     env_file: .env
     environment:
       - ACME_AGREE=true
@@ -17,11 +12,8 @@ services:
       - ./src/staticfiles:/var/www/django/static
       - ./caddy_data:/data
       - ./caddy_config:/config
-<<<<<<< HEAD
       - ./var/log/caddy:/var/log/
       - ./maintenance_mode/:/srv
-=======
->>>>>>> 96badfb60ed2d16f58b5cbf8fd53ad63b37081bd
     restart: unless-stopped
     ports:
       - "80:80"
@@ -64,14 +56,8 @@ services:
   # Minio local storage helper
   #----------------------------------------------------------------------------------------------------
   minio:
-<<<<<<< HEAD
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /export
-=======
-    # image: minio/minio:RELEASE.2020-10-03T02-19-42Z
-    image: minio/minio:RELEASE.2024-04-18T19-09-19Z
-    command: server /export  --console-address :9001 
->>>>>>> 96badfb60ed2d16f58b5cbf8fd53ad63b37081bd
     volumes:
       - ./var/minio:/export 
     restart: unless-stopped
@@ -80,12 +66,7 @@ services:
       - $MINIO_PORT:9000
     env_file: .env
     healthcheck:
-<<<<<<< HEAD
       test: ["CMD", "curl", "-I", "http://minio:9000/minio/health/live"]
-=======
-      # test: ["CMD", "nc", "-z", "minio", "9000"]
-      test: ["CMD", "curl", "-I", "minio:9000/minio/health/live"]
->>>>>>> 96badfb60ed2d16f58b5cbf8fd53ad63b37081bd
       interval: 5s
       retries: 5
   createbuckets:
