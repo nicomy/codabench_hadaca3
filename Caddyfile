@@ -1,4 +1,5 @@
 
+
 {$DOMAIN_NAME} {
   # HTTPS Options
   tls {$TLS_EMAIL}
@@ -54,5 +55,4 @@
       roll_size 5000MiB
     }
   }
-}
 

@@ -21,6 +21,7 @@ USE_X_FORWARDED_HOST = True
 csrf_https_domain = "https://" + os.environ.get("DOMAIN_NAME").split(':')[0]
 csrf_http_domain = "http://" + os.environ.get("DOMAIN_NAME").split(':')[0]
 
+<<<<<<< HEAD
 if os.environ.get("EXTERNAL_DOMAIN_NAME", "") != "":
     csrf_https_external_domain = "https://" + os.environ.get("EXTERNAL_DOMAIN_NAME", "").split(':')[0]
     csrf_http_external_domain = "http://" + os.environ.get("EXTERNAL_DOMAIN_NAME", "").split(':')[0]
@@ -33,6 +34,9 @@ else:
     CSRF_ALLOWED_ORIGINS = [csrf_https_domain, csrf_http_domain]
 
     DOMAIN_NAME = os.environ.get('DOMAIN_NAME', 'localhost').split(':')[0]
+=======
+SITE_ID = 100
+>>>>>>> 96badfb60ed2d16f58b5cbf8fd53ad63b37081bd
 
 SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost')
 SITE_ID = 1
@@ -526,32 +530,33 @@ DEFAULT_USER_QUOTA = 15  # 15GB
 # =============================================================================
 # Debug
 # =============================================================================
-if DEBUG:
-    INSTALLED_APPS += ('debug_toolbar',)
-    MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',
-                  'querycount.middleware.QueryCountMiddleware',
-                  ) + MIDDLEWARE  # we want Debug Middleware at the top
+
+# if DEBUG:
+#     INSTALLED_APPS += ('debug_toolbar',)
+#     MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',
+#                   'querycount.middleware.QueryCountMiddleware',
+#                   ) + MIDDLEWARE  # we want Debug Middleware at the top
     # tricks to have debug toolbar when developing with docker
 
-    INTERNAL_IPS = ['127.0.0.1']
+# INTERNAL_IPS = ['127.0.0.1']
 
-    import socket
+# import socket
 
-    try:
-        INTERNAL_IPS.append(socket.gethostbyname(socket.gethostname())[:-1])
-    except socket.gaierror:
-        pass
+# try:
+#     INTERNAL_IPS.append(socket.gethostbyname(socket.gethostname())[:-1])
+# except socket.gaierror:
+#     pass
 
-    QUERYCOUNT = {
-        'IGNORE_REQUEST_PATTERNS': [
-            r'^/admin/',
-            r'^/static/',
-        ]
-    }
+# QUERYCOUNT = {
+#     'IGNORE_REQUEST_PATTERNS': [
+#         r'^/admin/',
+#         r'^/static/',
+#     ]
+# }
 
-    DEBUG_TOOLBAR_CONFIG = {
-        "SHOW_TOOLBAR_CALLBACK": lambda request: True
-    }
+# DEBUG_TOOLBAR_CONFIG = {
+#     "SHOW_TOOLBAR_CALLBACK": lambda request: True
+# }
 
 # =========================================================================
 # Email
