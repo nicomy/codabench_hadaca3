@@ -1,3 +1,4 @@
+
 {$DOMAIN_NAME} {
   # HTTPS Options
   tls {$TLS_EMAIL}
@@ -26,28 +27,23 @@
       status 503
     }
   }
-  # When maintenance ends, redirect stale /maintenance.html requests back to home
-  @staleMaintenancePage {
-    path /maintenance.html
-    not file {
-      root /srv
-      try_files maintenance.on
-    }
-  }
-  redir @staleMaintenancePage / 302
 
   # Serves static files, should be the same as `STATIC_ROOT` setting:
   root * /var/www/django
   file_server
 
   @noStatic {
-    not path /static/*
-    not path /media/*
+    not path /static/* /media/* /{$AWS_STORAGE_BUCKET_NAME}* /{$AWS_STORAGE_PRIVATE_BUCKET_NAME}* /minio*
   }
 
 
   # Serving dynamic requests:
   reverse_proxy @noStatic django:8000
+
+    @min_bucket {
+        path /{$AWS_STORAGE_BUCKET_NAME}* /{$AWS_STORAGE_PRIVATE_BUCKET_NAME}*
+    }
+    reverse_proxy @min_bucket minio:{$MINIO_PORT}
 
   # Allows to use `.gz` files when available:
   encode gzip
@@ -59,3 +55,4 @@
     }
   }
 }
+

@@ -35,52 +35,88 @@ logger = logging.getLogger(__name__)
 
 sys.path.append("/app/src/settings/")
 
+def get(key, default=None):
+    """
+    Return the env var value if set, else default; returns None if not set and no default.
+    """
+    val = os.getenv(key)
+    if val is not None:
+        return val
+
+    if default is not None:
+        return default
+
+    logger.warning(f"Environment variable '{key}' not found and no default provided.")
+    return None
+
+
+
+def to_bool(val):
+    try:
+        if isinstance(val, bool):
+            return val
+
+        val_str = str(val).strip()
+
+        if val_str in ("true", "True", "TRUE", "1"):
+            return True
+        if val_str in ("false", "False", "FALSE", "0"):
+            return False
+
+        logger.warning(f"Failed to parse boolean from '{val}'")
+        return val
+
+    except Exception as e:
+        logger.warning(f"Failed to parse boolean from '{val}': {e}")
+        return val
 
 # -----------------------------------------------
 # Settings
 # -----------------------------------------------
 class Settings:
 
-    @staticmethod
-    def get(key, default=None):
-        """
-        Return the env var value if set, else default; returns None if not set and no default.
-        """
-        val = os.getenv(key)
+#    @staticmethod
+#    def get(key, default=None):
+#        """
+#        Return the env var value if set, else default; returns None if not set and no default.
+#        """
+#        val = os.getenv(key)
+#
+#        if val is not None:
+#            return val
+#
+#        if default is not None:
+#            return default
+#
+#        logger.warning(f"Environment variable '{key}' not found and no default provided.")
+#        return None
 
-        if val is not None:
-            return val
-
-        if default is not None:
-            return default
-
-        logger.warning(f"Environment variable '{key}' not found and no default provided.")
-        return None
-
-    @staticmethod
-    def to_bool(val):
-        try:
-            if isinstance(val, bool):
-                return val
-
-            val_str = str(val).strip()
-
-            if val_str in ("true", "True", "TRUE", "1"):
-                return True
-            if val_str in ("false", "False", "FALSE", "0"):
-                return False
-
-            logger.warning(f"Failed to parse boolean from '{val}'")
-            return val
-
-        except Exception as e:
-            logger.warning(f"Failed to parse boolean from '{val}': {e}")
-            return val
+#    @staticmethod
+#    def to_bool(val):
+#        try:
+#            if isinstance(val, bool):
+#                return val
+#
+#            val_str = str(val).strip()
+#
+#            if val_str in ("true", "True", "TRUE", "1"):
+#                return True
+#            if val_str in ("false", "False", "FALSE", "0"):
+#                return False
+#
+#            logger.warning(f"Failed to parse boolean from '{val}'")
+#            return val
+#
+#        except Exception as e:
+#            logger.warning(f"Failed to parse boolean from '{val}': {e}")
+#            return val
 
     # Directories
     # NOTE: we need to pass this directory to docker/podman so it knows where to store things!
-    HOST_DIRECTORY = get("HOST_DIRECTORY", "/tmp/codabench/")
-    MAX_CACHE_DIR_SIZE_GB = float(get("MAX_CACHE_DIR_SIZE_GB", 10))
+    #HOST_DIRECTORY = get("HOST_DIRECTORY", "/tmp/codabench/")
+    HOST_DIRECTORY = os.getenv("HOST_DIRECTORY", "/tmp/codabench/")
+    #MAX_CACHE_DIR_SIZE_GB = float(get("MAX_CACHE_DIR_SIZE_GB", 10))
+    MAX_CACHE_DIR_SIZE_GB = float(os.getenv("MAX_CACHE_DIR_SIZE_GB", "10"))
     BASE_DIR = "/codabench/"  # base directory inside the container
     CACHE_DIR = os.path.join(BASE_DIR, "cache")
 

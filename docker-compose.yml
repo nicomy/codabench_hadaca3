@@ -221,7 +221,7 @@ services:
         limits:
           # Limit memory substantially here so we see any problems that may
           # appear on Heroku ahead of time
-          memory: 256M
+          memory: 2g
 
   compute_worker:
     command: ["celery -A compute_worker worker -l info -Q compute-worker -n compute-worker@%n"]
