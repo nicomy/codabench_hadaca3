@@ -17,4 +17,4 @@ tcp:
     rabbitmq-service:
       loadBalancer:
         servers:
-          - address: "tcp://rabbit:5672"
+          - address: "rabbit:5672"
