@@ -253,38 +253,38 @@ services:
         max-size: "20m"
         max-file: "5"
 
-traefik:
-  image: traefik:v3.2
-  env_file: .env
-  # command:
-  #   - "--log.level=INFO"
-  #   - "--providers.docker=true"
-  #   - "--providers.docker.exposedbydefault=false"
-  #   - "--providers.file.directory=/etc/traefik/dynamic"
-  #   - "--entrypoints.amqp.address=:5672"
-  #   - "--entrypoints.amqp.tls=true"
-  command: 
-    - "-c"
-    - |
-      CERT_PATH=$(find /caddy_certs -name "codabench.univ-grenoble-alpes.fr.crt" | head -n 1)
-      CERT_DIR=$(dirname "$CERT_PATH")
-      ln -sf "$CERT_DIR" /etc/traefik/certs_fixed
-      
-      exec traefik \
-        --log.level=INFO \
-        --providers.docker=true \
-        --providers.docker.exposedbydefault=false \
-        --providers.file.directory=/etc/traefik/dynamic \
-        --entrypoints.amqp.address=:5672 \
-        --entrypoints.amqp.tls=true
-  ports:
-    - "5672:5672"    
-  depends_on:
-    - caddy
-  volumes:
-    - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    - "./traefik/dynamic:/etc/traefik/dynamic:ro"
-    - "./caddy_data:/caddy_certs:ro" 
-  restart: unless-stopped
+  traefik:
+    image: traefik:v3.2
+    env_file: .env
+    # command:
+    #   - "--log.level=INFO"
+    #   - "--providers.docker=true"
+    #   - "--providers.docker.exposedbydefault=false"
+    #   - "--providers.file.directory=/etc/traefik/dynamic"
+    #   - "--entrypoints.amqp.address=:5672"
+    #   - "--entrypoints.amqp.tls=true"
+    command: 
+      - "-c"
+      - |
+        CERT_PATH=$(find /caddy_certs -name "codabench.univ-grenoble-alpes.fr.crt" | head -n 1)
+        CERT_DIR=$(dirname "$CERT_PATH")
+        ln -sf "$CERT_DIR" /etc/traefik/certs_fixed
+        
+        exec traefik \
+          --log.level=INFO \
+          --providers.docker=true \
+          --providers.docker.exposedbydefault=false \
+          --providers.file.directory=/etc/traefik/dynamic \
+          --entrypoints.amqp.address=:5672 \
+          --entrypoints.amqp.tls=true
+    ports:
+      - "5672:5672"    
+    depends_on:
+      - caddy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik/dynamic:/etc/traefik/dynamic:ro"
+      - "./caddy_data:/caddy_certs:ro" 
+    restart: unless-stopped
 
 
