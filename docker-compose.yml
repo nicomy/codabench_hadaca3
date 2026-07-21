@@ -263,6 +263,7 @@ services:
     #   - "--providers.file.directory=/etc/traefik/dynamic"
     #   - "--entrypoints.amqp.address=:5672"
     #   - "--entrypoints.amqp.tls=true"
+    entrypoint: /bin/sh
     command: 
       - "-c"
       - |
