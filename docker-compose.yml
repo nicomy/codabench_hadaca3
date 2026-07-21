@@ -257,7 +257,7 @@ services:
     image: traefik:v3.2
     env_file: .env
     command:
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
       - "--providers.docker=false"
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--entrypoints.amqp.address=:5672"
