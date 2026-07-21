@@ -3,11 +3,6 @@ tls:
     - certFile: "/caddy_certs/caddy/certificates/acme.zerossl.com-v2-dv90/codabench.univ-grenoble-alpes.fr/codabench.univ-grenoble-alpes.fr.crt"
       keyFile: "/caddy_certs/caddy/certificates/acme.zerossl.com-v2-dv90/codabench.univ-grenoble-alpes.fr/codabench.univ-grenoble-alpes.fr.key"
 
-# tls:
-#   certificates:
-#     - certFile: "/etc/traefik/certs_fixed/codabench.univ-grenoble-alpes.fr.crt"
-#       keyFile: "/etc/traefik/certs_fixed/codabench.univ-grenoble-alpes.fr.key"
-
 tcp:
   routers:
     rabbitmq-tls:
