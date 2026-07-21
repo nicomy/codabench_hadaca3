@@ -158,7 +158,7 @@ services:
       - no_proxy=${RABBITMQ_NO_PROXY}
     ports:
       - ${RABBITMQ_MANAGEMENT_PORT:-15672}:15672
-      - ${RABBITMQ_PORT}:5672
+      # - ${RABBITMQ_PORT}:5672
     volumes:
       - ./var/rabbit:/var/lib/rabbitmq
     restart: unless-stopped
@@ -278,7 +278,8 @@ services:
           --entrypoints.amqp.address=:5672 \
           --entrypoints.amqp.tls=true
     ports:
-      - "5672:5672"    
+      # - "5672:5672"    
+      - ${RABBITMQ_PORT}:5672
     depends_on:
       - caddy
     volumes:

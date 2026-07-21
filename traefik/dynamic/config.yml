@@ -7,3 +7,19 @@ tls:
   certificates:
     - certFile: "/etc/traefik/certs_fixed/codabench.univ-grenoble-alpes.fr.crt"
       keyFile: "/etc/traefik/certs_fixed/codabench.univ-grenoble-alpes.fr.key"
+
+tcp:
+  routers:
+    rabbitmq-tls:
+      rule: "HostSNI(`codabench.univ-grenoble-alpes.fr`)"
+      entryPoints:
+        - "amqp"
+      tls:
+        passthrough: false # Traefik decrypts using the certificates above
+      service: rabbitmq-service
+
+  services:
+    rabbitmq-service:
+      loadBalancer:
+        servers:
+          - url: "tcp://rabbit:5672"
