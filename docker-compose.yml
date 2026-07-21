@@ -258,11 +258,9 @@ services:
     env_file: .env
     command:
       - "--log.level=INFO"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker=false"
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--entrypoints.amqp.address=:5672"
-      - "--entrypoints.amqp.tls=true"
     # entrypoint: /bin/sh
     # command: 
     #   - "-c"
