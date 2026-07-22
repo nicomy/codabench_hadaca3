@@ -261,7 +261,7 @@ services:
       - "--providers.docker=false"
       - "--providers.file=true"   
       - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--entrypoints.amqp.address=:5672"
+      - "--entrypoints.amqp.address=:5672/tcp"
       # - "--entrypoints.amqps.address=:5672"
     ports:
       # - "5672:5672"    
