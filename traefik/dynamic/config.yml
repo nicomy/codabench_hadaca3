@@ -10,7 +10,7 @@ tcp:
       entryPoints:
         - "amqp"
       tls:
-        passthrough: false # Traefik decrypts using the certificates above
+        passthrough: true # Traefik decrypts using the certificates above
       service: rabbitmq-service
 
   services:
