@@ -259,8 +259,10 @@ services:
     command:
       - "--log.level=DEBUG"
       - "--providers.docker=false"
+      - "--providers.file=true"   
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--entrypoints.amqp.address=:5672"
+      # - "--entrypoints.amqps.address=:5672"
     ports:
       # - "5672:5672"    
       - ${RABBITMQ_PORT}:5672
