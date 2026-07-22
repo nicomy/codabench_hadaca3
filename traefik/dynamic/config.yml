@@ -6,8 +6,8 @@ tls:
 tcp:
   routers:
     rabbitmq-tls:
-      rule: "HostSNI('*')"
-      # rule: "HostSNI(`codabench.univ-grenoble-alpes.fr`)"
+      # rule: "HostSNI('*')"
+      rule: "HostSNI(`codabench.univ-grenoble-alpes.fr`)"
       entryPoints:
         - "amqp"
       tls:
