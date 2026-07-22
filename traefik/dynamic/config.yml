@@ -6,11 +6,12 @@ tls:
 tcp:
   routers:
     rabbitmq-tls:
-      rule: "HostSNI(`codabench.univ-grenoble-alpes.fr`)"
+      rule: "HostSNI('*')"
+      # rule: "HostSNI(`codabench.univ-grenoble-alpes.fr`)"
       entryPoints:
         - "amqp"
       tls:
-        passthrough: true # Traefik decrypts using the certificates above
+        passthrough: false # Traefik decrypts using the certificates above
       service: rabbitmq-service
 
   services:
